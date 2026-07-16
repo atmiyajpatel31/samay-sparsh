@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#F4EEE2">
+<title>Samay Pakad</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ══════════════ MENU ══════════════ -->
+  <section class="screen active" id="screen-menu">
+    <div class="menu-head">
+      <h1 class="title menu-title">Samay Pakad</h1>
+      <p class="body-muted mt-2">Catch the time. Closest player wins.</p>
+    </div>
+
+    <div class="card-hero" id="btn-start-party">
+      <div class="icon-badge">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
+          <circle cx="17.5" cy="9.5" r="2.2"/><path d="M17.5 14c2.5 0 4.5 2 4.5 4.5"/>
+        </svg>
+      </div>
+      <div>
+        <div class="h-title">Start a Party</div>
+        <div class="h-sub">Host a session and invite friends</div>
+      </div>
+      <svg class="chev" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l5 5-5 5"/></svg>
+    </div>
+
+    <div class="card-row mt-3" id="btn-join-party">
+      <div class="icon-badge">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#963F2E" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="7.5" cy="15.5" r="3.5"/><path d="M10 13L20 3M17 6l2.5 2.5M14 9l2.5 2.5"/>
+        </svg>
+      </div>
+      <div>
+        <div class="h-title">Join a Party</div>
+        <div class="h-sub">Enter a 6-digit code</div>
+      </div>
+      <svg class="chev" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l5 5-5 5"/></svg>
+    </div>
+
+    <div class="flex-1"></div>
+    <p class="body-muted center menu-foot">2–3 players · 5 rounds · closest time wins the round</p>
+  </section>
+
+  <!-- ══════════════ SETUP (name + optional code) ══════════════ -->
+  <section class="screen" id="screen-setup">
+    <div class="topbar">
+      <h2 class="title" id="setup-title">Start a Party</h2>
+      <button class="close-x" data-back="screen-menu" aria-label="Back">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M5 5l10 10M15 5L5 15"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="eyebrow mb-3">Your Name</div>
+    <input class="code-input" id="input-name" type="text" maxlength="12"
+           style="font-family:var(--serif);font-size:22px;letter-spacing:normal;text-indent:0"
+           placeholder="Name" autocomplete="off" autocapitalize="words" spellcheck="false">
+
+    <div id="join-code-block" class="hidden">
+      <div class="eyebrow mt-5 mb-3">Party Code</div>
+      <input class="code-input" id="input-code" type="text" inputmode="numeric"
+             maxlength="6" placeholder="000000" autocomplete="off">
+    </div>
+
+    <p class="body-muted mt-4" id="setup-hint">You'll get a code to share. Two or three players can play.</p>
+
+    <div class="flex-1"></div>
+    <button class="btn btn-primary" id="btn-setup-go">Continue</button>
+  </section>
+
+  <!-- ══════════════ LOBBY ══════════════ -->
+  <section class="screen" id="screen-lobby">
+    <div class="topbar">
+      <h2 class="title">Samay Pakad</h2>
+      <button class="close-x" id="btn-leave-lobby" aria-label="Leave">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M5 5l10 10M15 5L5 15"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="card center">
+      <div class="eyebrow">Party Code</div>
+      <div class="code-display" id="lobby-code">------</div>
+      <button class="btn btn-quiet" id="btn-copy-code" style="padding:4px">Tap to copy</button>
+    </div>
+
+    <div class="eyebrow mt-5 mb-3">Players</div>
+    <div class="card" style="padding:4px 14px">
+      <div id="lobby-players"></div>
+    </div>
+
+    <p class="body-muted mt-4 center" id="lobby-hint">Waiting for at least one more player…</p>
+
+    <div class="flex-1"></div>
+    <button class="btn btn-primary" id="btn-lobby-start" disabled>Start Game</button>
+    <p class="body-muted mt-3 center" id="lobby-foot">Only the host can start the game.</p>
+  </section>
+
+  <!-- ══════════════ INSTRUCTIONS ══════════════ -->
+  <section class="screen" id="screen-instructions">
+    <div class="center mb-4">
+      <h2 class="title">Samay Pakad</h2>
+      <p class="body-muted mt-2">Catch the time. Closest player wins.</p>
+    </div>
+
+    <div class="demo" id="demo">
+      <div class="demo-inner">
+        <div class="demo-label" id="demo-label">Target Time</div>
+        <div class="demo-target" id="demo-target">5.00s</div>
+        <div class="demo-timer" id="demo-timer">0.00</div>
+        <div class="demo-diff" id="demo-diff"></div>
+      </div>
+      <div class="demo-finger" id="demo-finger"></div>
+      <div class="demo-ripple" id="demo-ripple"></div>
+    </div>
+
+    <div class="card mt-4">
+      <ol class="steps">
+        <li class="step"><span class="step-n">1</span><span class="step-t">Look at the target time.</span></li>
+        <li class="step"><span class="step-n">2</span><span class="step-t">Tap anywhere to start the timer.</span></li>
+        <li class="step"><span class="step-n">3</span><span class="step-t">Tap anywhere again to stop the timer.</span></li>
+        <li class="step"><span class="step-n">4</span><span class="step-t">Try to stop as close as possible to the target.</span></li>
+        <li class="step"><span class="step-n">5</span><span class="step-t">The closest player wins the round.</span></li>
+        <li class="step"><span class="step-n">6</span><span class="step-t">Win the most rounds to win the game.</span></li>
+      </ol>
+    </div>
+
+    <div class="flex-1 mt-4"></div>
+    <button class="btn btn-primary" id="btn-to-practice">Try Practice Round</button>
+  </section>
+
+  <!-- ══════════════ ROUND (practice + official + tie-breaker) ══════════════ -->
+  <section class="screen" id="screen-round">
+    <div class="round-head">
+      <div class="tb-banner hidden" id="tb-banner">
+        <div class="tb-title">TIE-BREAKER ROUND!</div>
+        <div class="tb-sub">Closest time wins the game.</div>
+      </div>
+      <div id="round-head-normal">
+        <div class="round-n" id="round-label">Round 1 of 5</div>
+        <div class="body-muted mt-2 hidden" id="round-sub">This round does not count.</div>
+      </div>
+      <div class="progress" id="round-progress"></div>
+    </div>
+
+    <div class="target-block mt-4">
+      <div class="eyebrow">Target Time</div>
+      <div class="target-val" id="round-target">5.00<span class="u">seconds</span></div>
+    </div>
+
+    <div class="tapzone" id="tapzone">
+      <div id="tap-idle">
+        <div class="tap-cta">Tap anywhere to start</div>
+        <div class="tap-sub">Tap again to stop the timer</div>
+      </div>
+      <div id="tap-running" class="hidden">
+        <div class="timer" id="timer">0.00</div>
+      </div>
+      <div id="tap-done" class="hidden">
+        <div class="timer stopped" id="timer-final">0.00</div>
+        <div class="result-line">
+          <div class="result-you" id="result-you"></div>
+          <div class="result-diff" id="result-diff"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="round-foot"></div>
+  </section>
+
+  <!-- ══════════════ ROUND RESULTS ══════════════ -->
+  <section class="screen" id="screen-results">
+    <div class="flex-1"></div>
+    <div class="verdict mb-4" id="verdict">Winner!</div>
+    <div class="card card-pop">
+      <div class="results-head" id="results-head">Round 1 Results</div>
+      <div id="results-list"></div>
+    </div>
+    <div class="flex-1"></div>
+    <button class="btn btn-primary" id="btn-next-round">Next Round</button>
+    <div class="waiting hidden" id="results-waiting">
+      <span>Waiting for Other Players</span>
+      <span class="dots"><i></i><i></i><i></i></span>
+    </div>
+  </section>
+
+  <!-- ══════════════ WAITING (generic) ══════════════ -->
+  <section class="screen" id="screen-waiting">
+    <div class="flex-1"></div>
+    <div class="center">
+      <div class="subtitle" id="waiting-title">Waiting for Other Players…</div>
+      <p class="body-muted mt-3" id="waiting-sub">The game starts when everyone is ready.</p>
+      <div class="dots mt-5" style="justify-content:center;display:inline-flex"><i></i><i></i><i></i></div>
+    </div>
+    <div class="card mt-6" style="padding:4px 14px">
+      <div id="waiting-players"></div>
+    </div>
+    <div class="flex-1"></div>
+  </section>
+
+  <!-- ══════════════ FINAL ══════════════ -->
+  <section class="screen" id="screen-final">
+    <div class="flex-1"></div>
+    <div class="trophy" id="final-trophy">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#B08A4A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4.5a2.5 2.5 0 0 0 2.5 2.5M17 6h2.5A2.5 2.5 0 0 1 17 8.5"/>
+        <path d="M12 14v3M9 20h6M10 17h4"/>
+      </svg>
+    </div>
+    <div class="verdict mb-4" id="final-verdict">You Won!</div>
+    <div class="card card-pop">
+      <div class="results-head">Final Results</div>
+      <div id="final-list"></div>
+    </div>
+    <div class="flex-1"></div>
+    <div class="btn-stack">
+      <button class="btn btn-primary" id="btn-play-again">Play Again</button>
+      <button class="btn btn-ghost" id="btn-menu">Return to Game Menu</button>
+    </div>
+    <div class="waiting hidden" id="final-waiting">
+      <span>Waiting for Other Players</span>
+      <span class="dots"><i></i><i></i><i></i></span>
+    </div>
+  </section>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="net.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

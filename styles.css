@@ -1,0 +1,521 @@
+/* ============================================================
+   Samay Pakad — visual language lifted from the Chalo Ramiye app.
+   Tokens here are the single source of truth; screens only compose them.
+   ============================================================ */
+
+:root {
+  --bg:            #F4EEE2;  /* warm cream page */
+  --brick:         #963F2E;  /* primary accent */
+  --brick-deep:    #7E3323;  /* pressed state */
+  --card:          #FFFEFC;  /* soft white */
+  --text:          #433A33;  /* dark warm brown */
+  --muted:         #A98F83;  /* muted taupe */
+  --line:          #E9DDD0;  /* light beige border */
+  --sage:          #68806B;  /* winner */
+  --blue:          #5B7A94;  /* small accent */
+  --gold:          #B08A4A;  /* small accent */
+
+  --r-card: 18px;
+  --r-btn: 14px;
+  --r-pill: 999px;
+
+  --shadow-card: 0 1px 2px rgba(67,58,51,.04), 0 6px 18px rgba(67,58,51,.06);
+  --shadow-raise: 0 2px 4px rgba(67,58,51,.06), 0 12px 30px rgba(67,58,51,.10);
+
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* Tabular figures matter: the timer must not reflow while counting. */
+  --num: "SF Mono", "Segoe UI Mono", "Roboto Mono", Menlo, Consolas, monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  /* iOS Safari: keep content clear of the home indicator / notch. */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+#app {
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ---------- Screens ---------- */
+
+.screen {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  padding: 22px 20px calc(22px + env(safe-area-inset-bottom));
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+.screen.active { display: flex; animation: screen-in .26s cubic-bezier(.22,.61,.36,1) both; }
+
+@keyframes screen-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ---------- Typography ---------- */
+
+.title {
+  font-family: var(--serif);
+  font-size: 30px;
+  font-weight: 600;
+  color: var(--brick);
+  letter-spacing: -.01em;
+}
+.subtitle { font-family: var(--serif); font-size: 22px; font-weight: 600; color: var(--text); }
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.body { font-size: 15px; line-height: 1.55; color: var(--text); }
+.body-muted { font-size: 14px; line-height: 1.5; color: var(--muted); }
+
+/* ---------- Cards ---------- */
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow-card);
+  padding: 18px;
+}
+
+/* The brick "Start a Party" hero row from the screenshot. */
+.card-hero {
+  background: var(--brick);
+  border: none;
+  color: #F7EDE6;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.card-hero:active { transform: scale(.985); }
+.card-hero .h-title { font-family: var(--serif); font-size: 17px; font-weight: 600; }
+.card-hero .h-sub { font-size: 12.5px; opacity: .78; margin-top: 2px; }
+
+.card-row {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  cursor: pointer;
+  transition: transform .12s ease;
+}
+.card-row:active { transform: scale(.985); }
+.card-row .h-title { font-family: var(--serif); font-size: 17px; font-weight: 600; color: var(--text); }
+.card-row .h-sub { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+
+.icon-badge {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  display: grid; place-items: center;
+  flex: 0 0 auto;
+}
+.card-hero .icon-badge { background: rgba(255,255,255,.14); }
+.card-row  .icon-badge { background: #FAF3EA; border: 1px solid var(--line); }
+.chev { margin-left: auto; opacity: .5; flex: 0 0 auto; }
+
+/* ---------- Buttons ---------- */
+
+.btn {
+  display: block;
+  width: 100%;
+  padding: 15px 18px;
+  border: none;
+  border-radius: var(--r-btn);
+  font-family: var(--sans);
+  font-size: 15.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform .12s ease, background .15s ease, opacity .15s ease;
+}
+.btn:active { transform: scale(.98); }
+.btn:disabled { opacity: .45; cursor: default; transform: none; }
+
+.btn-primary { background: var(--brick); color: #FDF6F0; box-shadow: var(--shadow-card); }
+.btn-primary:not(:disabled):active { background: var(--brick-deep); }
+
+.btn-ghost {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-card);
+}
+.btn-quiet { background: transparent; color: var(--muted); box-shadow: none; font-weight: 500; }
+
+.btn-stack { display: flex; flex-direction: column; gap: 10px; }
+
+/* ---------- Header ---------- */
+
+.topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.close-x {
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); padding: 4px; line-height: 0;
+}
+
+/* ---------- Menu ---------- */
+
+/* The menu is two choices and nothing else, so it gets air the other
+   screens can't afford. */
+.menu-head { padding: 12vh 0 34px; text-align: center; }
+.menu-title { font-size: 36px; }
+.menu-foot { font-size: 12.5px; padding-bottom: 8px; }
+
+@media (max-height: 700px) {
+  .menu-head { padding: 7vh 0 26px; }
+  .menu-title { font-size: 31px; }
+}
+
+/* ---------- Room code ---------- */
+
+.code-display {
+  font-family: var(--num);
+  font-size: 38px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  color: var(--brick);
+  text-align: center;
+  padding: 8px 0 4px;
+  text-indent: .16em; /* re-center against the trailing letter-space */
+}
+
+.code-input {
+  width: 100%;
+  font-family: var(--num);
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: .22em;
+  text-align: center;
+  text-indent: .22em;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-btn);
+  padding: 16px 10px;
+  outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.code-input:focus { border-color: var(--brick); box-shadow: 0 0 0 3px rgba(150,63,46,.10); }
+.code-input::placeholder { color: var(--line); letter-spacing: .22em; }
+
+/* ---------- Player list ---------- */
+
+.player-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 4px;
+  border-bottom: 1px solid var(--line);
+}
+.player-row:last-child { border-bottom: none; }
+
+.avatar {
+  width: 34px; height: 34px; border-radius: var(--r-pill);
+  background: #FAF3EA; border: 1px solid var(--line);
+  display: grid; place-items: center;
+  font-size: 12px; font-weight: 700; color: var(--muted);
+  flex: 0 0 auto;
+}
+.player-name { font-size: 15px; font-weight: 600; }
+.player-tag { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.player-meta { margin-left: auto; font-size: 12px; color: var(--muted); }
+
+.slot-empty { opacity: .5; }
+.slot-empty .avatar { border-style: dashed; background: transparent; }
+
+/* ---------- Instructions ---------- */
+
+.steps { list-style: none; display: flex; flex-direction: column; gap: 11px; }
+.step { display: flex; gap: 12px; align-items: flex-start; }
+.step-n {
+  width: 22px; height: 22px; border-radius: var(--r-pill);
+  background: #FAF3EA; border: 1px solid var(--line);
+  color: var(--brick);
+  font-size: 11px; font-weight: 700;
+  display: grid; place-items: center;
+  flex: 0 0 auto; margin-top: 1px;
+}
+.step-t { font-size: 14.5px; line-height: 1.45; }
+
+/* ---------- Animated tutorial ---------- */
+
+.demo {
+  position: relative;
+  height: 168px;
+  background: #FAF6EE;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+.demo-inner { text-align: center; }
+.demo-label { font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.demo-target { font-family: var(--num); font-size: 20px; font-weight: 700; color: var(--brick); margin-top: 2px; }
+.demo-timer {
+  font-family: var(--num);
+  font-size: 40px; font-weight: 700;
+  color: var(--text);
+  margin-top: 10px;
+  font-variant-numeric: tabular-nums;
+}
+.demo-diff { font-size: 12.5px; color: var(--sage); font-weight: 600; margin-top: 6px; height: 16px; }
+
+/* The travelling finger in the tutorial. */
+.demo-finger {
+  position: absolute;
+  width: 30px; height: 30px;
+  border-radius: var(--r-pill);
+  border: 2px solid var(--brick);
+  background: rgba(150,63,46,.10);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .18s ease, transform .18s ease;
+}
+.demo-finger.tapping { animation: finger-tap .32s ease; }
+@keyframes finger-tap {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(.72); background: rgba(150,63,46,.28); }
+  100% { transform: scale(1); }
+}
+.demo-ripple {
+  position: absolute;
+  width: 30px; height: 30px; border-radius: var(--r-pill);
+  border: 2px solid var(--brick);
+  pointer-events: none; opacity: 0;
+}
+.demo-ripple.go { animation: ripple .5s ease-out; }
+@keyframes ripple {
+  from { opacity: .5; transform: scale(1); }
+  to   { opacity: 0; transform: scale(2.6); }
+}
+
+/* ---------- Round header / progress ---------- */
+
+.round-head { text-align: center; margin-bottom: 4px; }
+.round-n {
+  font-size: 11.5px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--brick);
+}
+
+.progress {
+  display: flex; justify-content: center; flex-wrap: wrap;
+  gap: 6px; margin-top: 8px;
+}
+.progress-chip {
+  font-size: 11px;
+  color: var(--muted);
+  background: rgba(255,254,252,.6);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  padding: 3px 9px;
+  white-space: nowrap;
+}
+.progress-chip b { color: var(--text); font-weight: 700; }
+.progress-chip.me { border-color: rgba(150,63,46,.3); }
+.progress-chip.me b { color: var(--brick); }
+
+/* ---------- Tap zone ---------- */
+
+.tapzone {
+  flex: 1;
+  min-height: 260px;
+  margin: 16px 0;
+  border: 1px dashed var(--line);
+  border-radius: 22px;
+  background: rgba(255,254,252,.5);
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 20px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  /* Kill browser pan/zoom gestures so a tap is only ever a tap. */
+  touch-action: manipulation;
+  transition: background .2s ease, border-color .2s ease;
+}
+/* Running: strip the chrome down to just the number. */
+.tapzone.running { border-color: transparent; background: transparent; }
+.tapzone.done { cursor: default; border-style: solid; background: transparent; }
+
+.tap-cta { font-size: 15px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--brick); }
+.tap-sub { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+
+.target-block { text-align: center; }
+/* The target is what the player is actually chasing — give it the weight to
+   match. Sits below the running timer in the hierarchy, never level with it. */
+.target-block .eyebrow { font-size: 14px; letter-spacing: .14em; }
+.target-val {
+  font-family: var(--num);
+  font-size: clamp(40px, 12.5vw, 50px); font-weight: 700;
+  color: var(--text);
+  margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.01em;
+}
+.target-val .u { font-size: 17px; font-weight: 600; color: var(--muted); margin-left: 5px; }
+
+.timer {
+  font-family: var(--num);
+  font-size: clamp(52px, 17vw, 74px);
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.02em;
+  line-height: 1;
+}
+.timer.start-pop { animation: pop .22s cubic-bezier(.34,1.56,.64,1); }
+@keyframes pop { from { transform: scale(.9); } to { transform: scale(1); } }
+.timer.stopped { animation: settle .3s cubic-bezier(.34,1.56,.64,1); }
+@keyframes settle {
+  0%   { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+.result-line { margin-top: 12px; }
+.result-you { font-size: 15px; font-weight: 600; }
+.result-diff { font-size: 14px; color: var(--brick); font-weight: 600; margin-top: 4px; }
+
+.waiting {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  font-size: 13.5px; color: var(--muted); padding: 12px;
+}
+.dots { display: inline-flex; gap: 3px; }
+.dots i {
+  width: 4px; height: 4px; border-radius: var(--r-pill);
+  background: var(--muted); display: block;
+  animation: blink 1.3s infinite ease-in-out both;
+}
+.dots i:nth-child(2) { animation-delay: .18s; }
+.dots i:nth-child(3) { animation-delay: .36s; }
+@keyframes blink { 0%, 80%, 100% { opacity: .25; } 40% { opacity: 1; } }
+
+/* ---------- Results ---------- */
+
+.verdict { text-align: center; font-family: var(--serif); font-size: 27px; font-weight: 600; }
+.verdict.win  { color: var(--sage); }
+.verdict.lose { color: var(--brick); }
+.verdict.final-lose { color: var(--text); }
+
+.results-head {
+  font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  text-decoration: underline; text-underline-offset: 4px;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.rank-row { display: flex; align-items: baseline; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--line); }
+.rank-row:last-child { border-bottom: none; }
+.rank-i { font-family: var(--num); font-size: 12px; color: var(--muted); width: 14px; flex: 0 0 auto; }
+.rank-name { font-size: 15px; font-weight: 700; }
+.rank-name.win   { color: var(--sage); }
+.rank-name.lose  { color: var(--brick); }
+.rank-name.neutral { color: var(--text); }
+.rank-name.neutral-muted { color: var(--muted); }
+.rank-stats { margin-left: auto; text-align: right; font-family: var(--num); font-size: 12px; color: var(--muted); white-space: nowrap; }
+.rank-stats .t { color: var(--text); font-weight: 600; }
+
+.card-pop { animation: card-pop .3s cubic-bezier(.22,.61,.36,1) both; }
+@keyframes card-pop {
+  from { opacity: 0; transform: translateY(10px) scale(.985); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ---------- Tie-breaker ---------- */
+
+.tb-banner { text-align: center; padding: 4px 0 2px; }
+.tb-title {
+  font-family: var(--serif); font-size: 24px; font-weight: 600; color: var(--brick);
+  animation: tb-in .4s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes tb-in {
+  from { opacity: 0; transform: scale(.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.tb-sub { font-size: 13.5px; color: var(--muted); margin-top: 4px; }
+
+/* ---------- Final ---------- */
+
+.trophy { text-align: center; margin-bottom: 2px; animation: pop .4s cubic-bezier(.34,1.56,.64,1) both; }
+
+/* ---------- Utilities ---------- */
+
+.flex-1 { flex: 1; }
+.center { text-align: center; }
+.mt-2 { margin-top: 8px; }  .mt-3 { margin-top: 12px; }
+.mt-4 { margin-top: 16px; } .mt-5 { margin-top: 20px; }
+.mt-6 { margin-top: 24px; }
+.mb-3 { margin-bottom: 12px; } .mb-4 { margin-bottom: 16px; }
+.hidden { display: none !important; }
+
+.divider { height: 1px; background: var(--line); margin: 16px 0; }
+
+.toast {
+  position: fixed;
+  left: 50%; bottom: calc(26px + env(safe-area-inset-bottom));
+  transform: translateX(-50%) translateY(12px);
+  background: var(--text);
+  color: #FBF7F1;
+  font-size: 13px; font-weight: 500;
+  padding: 10px 16px;
+  border-radius: var(--r-pill);
+  box-shadow: var(--shadow-raise);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease;
+  z-index: 50;
+  max-width: 88vw;
+  text-align: center;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* Short viewports (small phones, landscape): tighten the vertical rhythm. */
+@media (max-height: 700px) {
+  .demo { height: 140px; }
+  .tapzone { min-height: 200px; margin: 12px 0; }
+  .screen { padding-top: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+}
