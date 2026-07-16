@@ -1,28 +1,50 @@
 # Samay Pakad
 
-A timing game for 2–3 players, built to the Chalo Ramiye visual language.
-A shared target time appears; each player taps to start their timer and taps
-again to stop as close to the target as they can. Closest player wins the round;
-most round wins takes the game.
+A timing game for 2–3 players. A shared target time appears; each player taps to
+start their timer and taps again to stop as close to the target as they can.
+Closest player wins the round; most round wins takes the game.
+
+Colours, type and card shapes follow the Chalo Ramiye reference screenshot.
 
 ## Run it
 
 ```
-npx -y http-server . -p 5173 -c-1
+node server.js
 ```
 
-Then open <http://localhost:5173> — **one browser tab per player**.
-One player taps *Start a Party* and reads out the 6-digit code; the others tap
-*Join a Party* and enter it. Serve over http, not `file://` (see Transport).
+It prints a `localhost` URL and a Wi-Fi one:
+
+```
+  Samay Pakad — http://localhost:5173
+  on this Wi-Fi:  http://192.168.1.232:5173
+```
+
+**To play on real phones, no deploy needed:** put every phone on the same Wi-Fi
+and open the Wi-Fi URL. One player taps *Start a Party* and reads out the
+6-digit code; the others tap *Join a Party* and enter it.
+
+`PORT` is read from the environment, so hosts like Render work unchanged.
+
+## Deploying to Render
+
+`render.yaml` configures the service — **New > Blueprint**, pick the repo, done.
+Three things about the free plan that will bite otherwise:
+
+- **It sleeps after ~15 min idle.** The first load then takes ~50s. Open the URL
+  yourself before people arrive.
+- **Rooms live in memory.** A deploy or a sleep wipes parties in progress.
+- **One instance, always.** Players in a party must land on the same process.
+  Scaling out needs room state in something shared (Redis) first.
 
 ## Files
 
 | File | What's in it |
 |---|---|
-| `index.html` | Markup for all nine screens |
+| `index.html` | Markup for every screen |
 | `styles.css` | Design tokens + every screen's styling |
 | `net.js` | Room transport and host authority. **The swap point.** |
 | `game.js` | Game rules, tap engine, screen flow |
+| `server.js` | Zero-dependency relay: SSE down, POST up |
 
 ## Flow
 
