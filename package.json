@@ -1,8 +1,8 @@
 {
-  "name": "samay-pakad",
+  "name": "samay-sparsh",
   "version": "1.0.0",
   "private": true,
-  "description": "Samay Pakad — a timing party game for the Chalo Ramiye app",
+  "description": "Samay Sparsh — a timing party game for the Chalo Ramiye app",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"

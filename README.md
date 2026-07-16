@@ -1,8 +1,8 @@
-# Samay Pakad
+# Samay Sparsh
 
-A timing game for 2–3 players. A shared target time appears; each player taps to
-start their timer and taps again to stop as close to the target as they can.
-Closest player wins the round; most round wins takes the game.
+A timing game for exactly 3 players. A shared target time appears; each player
+taps to start their timer and taps again to stop as close to the target as they
+can. Closest player wins the round; most round wins takes the game.
 
 Colours, type and card shapes follow the Chalo Ramiye reference screenshot.
 
@@ -15,7 +15,7 @@ node server.js
 It prints a `localhost` URL and a Wi-Fi one:
 
 ```
-  Samay Pakad — http://localhost:5173
+  Samay Sparsh — http://localhost:5173
   on this Wi-Fi:  http://192.168.1.232:5173
 ```
 

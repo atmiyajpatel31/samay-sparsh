@@ -1,5 +1,5 @@
 /* ============================================================
-   game.js — Samay Pakad
+   game.js — Samay Sparsh
 
    Flow:
      Menu → Setup → Lobby → Instructions → Practice → Waiting
@@ -13,6 +13,7 @@
 
 /* ---------- constants ---------- */
 
+const PLAYERS_REQUIRED = 3;   // exactly three — the game does not start short
 const OFFICIAL_ROUNDS = 5;
 const PRACTICE_TARGET = 5.00;
 const TARGET_MIN = 4.00;
@@ -88,7 +89,7 @@ function openSetup(mode) {
   $('setup-title').textContent = mode === 'create' ? 'Start a Party' : 'Join a Party';
   $('join-code-block').classList.toggle('hidden', mode === 'create');
   $('setup-hint').textContent = mode === 'create'
-    ? "You'll get a code to share. Two or three players can play."
+    ? "You'll get a code to share. Samay Sparsh needs three players."
     : 'Ask the host for their 6-digit party code.';
   $('btn-setup-go').textContent = mode === 'create' ? 'Create Party' : 'Join Party';
   $('input-name').value = localStorage.getItem('sp-name') || '';
@@ -155,22 +156,23 @@ function renderLobby() {
       </div>
     </div>`);
 
-  // Show the empty third slot so the room capacity is legible at a glance.
-  if (net.players.length < NET_MAX_PLAYERS) {
+  // Show every unfilled seat, so "we need one more" is legible at a glance
+  // rather than something you work out from a counter.
+  for (let i = net.players.length; i < PLAYERS_REQUIRED; i++) {
     rows.push(`
       <div class="player-row slot-empty">
         <div class="avatar">+</div>
-        <div><div class="player-name" style="color:var(--muted)">Open slot</div>
+        <div><div class="player-name" style="color:var(--muted)">Waiting for a player</div>
         <div class="player-tag">Share the code</div></div>
       </div>`);
   }
   $('lobby-players').innerHTML = rows.join('');
 
-  const enough = net.players.length >= 2;
-  $('btn-lobby-start').disabled = !enough;
-  $('lobby-hint').textContent = enough
-    ? `${net.players.length} players ready. ${net.isHost ? 'Start when you are.' : 'Waiting for the host…'}`
-    : 'Waiting for at least one more player…';
+  const missing = PLAYERS_REQUIRED - net.players.length;
+  $('btn-lobby-start').disabled = missing > 0;
+  $('lobby-hint').textContent = missing > 0
+    ? `Waiting for ${missing} more player${missing === 1 ? '' : 's'}…`
+    : `All ${PLAYERS_REQUIRED} players in. ${net.isHost ? 'Start when you are.' : 'Waiting for the host…'}`;
 }
 
 $('btn-copy-code').onclick = async () => {
@@ -188,7 +190,7 @@ $('btn-leave-lobby').onclick = () => {
 };
 
 $('btn-lobby-start').onclick = () => {
-  if (net.players.length < 2) return;
+  if (net.players.length < PLAYERS_REQUIRED) return;
   net.send('begin');
 };
 

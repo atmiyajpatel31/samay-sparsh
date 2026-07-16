@@ -1,5 +1,5 @@
 'use strict';
-/* Samay Pakad — party server (zero dependencies)
+/* Samay Sparsh — party server (zero dependencies)
  * Run:  node server.js   → open http://<this-machine's-IP>:5173 on each phone
  * Clients receive room traffic via SSE (/events) and send via POST /api/msg.
  *
@@ -163,7 +163,7 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log('\n  Samay Pakad — http://localhost:' + PORT);
+  console.log('\n  Samay Sparsh — http://localhost:' + PORT);
   for (const u of lanUrls()) console.log('  on this Wi-Fi:  ' + u);
   console.log('');
 });

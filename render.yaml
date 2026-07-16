@@ -6,7 +6,7 @@
 # room state somewhere shared (Redis or similar) first.
 services:
   - type: web
-    name: samay-pakad
+    name: samay-sparsh
     runtime: node
     plan: free
     numInstances: 1

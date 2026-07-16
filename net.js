@@ -1,5 +1,5 @@
 /* ============================================================
-   net.js — room transport for Samay Pakad.
+   net.js — room transport for Samay Sparsh.
 
    This is the ONLY file that knows how bytes move between players.
    game.js talks to it through four things and nothing else:
