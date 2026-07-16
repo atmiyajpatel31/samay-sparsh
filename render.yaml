@@ -1,18 +1,16 @@
 # Render blueprint. With this file in the repo root, Render configures the
 # service itself — New > Blueprint > pick the repo. No dashboard fiddling.
 #
-# One instance on purpose: rooms live in memory, so every player in a party
-# must land on the same process. Do not raise numInstances without moving
-# room state somewhere shared (Redis or similar) first.
+# MUST STAY ON ONE INSTANCE. Rooms live in memory, so every player in a party
+# has to land on the same process; a second instance would put players with
+# the same code into different rooms. The free plan is single-instance, which
+# is why this is safe today. Before scaling out — or moving to a paid plan
+# with autoscaling — room state has to move somewhere shared (Redis or similar).
 services:
   - type: web
     name: samay-sparsh
     runtime: node
     plan: free
-    numInstances: 1
     buildCommand: npm install     # no dependencies — this is a no-op, kept for clarity
     startCommand: node server.js
     healthCheckPath: /healthz
-    envVars:
-      - key: NODE_VERSION
-        value: "22"
