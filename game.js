@@ -15,14 +15,18 @@
 
 const PLAYERS_REQUIRED = 3;   // exactly three — the game does not start short
 const OFFICIAL_ROUNDS = 5;
-const PRACTICE_TARGET = 5.00;
-const TARGET_MIN = 4.00;
-const TARGET_MAX = 10.00;
+
+// The teaching target. Shared by the animated example and the practice round
+// so the number a player is shown is the number they then try to hit.
+const TUTORIAL_TARGET = 4.00;
+
+const TARGET_MIN = 3.00;
+const TARGET_MAX = 8.00;
 
 // After the starting tap is released, ignore taps for this long. This is what
 // stops a long press from registering as start+stop and what absorbs an
 // accidental double-tap. Long enough to catch a fumble, far below any real
-// attempt (the shortest legal target is 4s).
+// attempt (the shortest legal target is 3s).
 const ARM_DELAY_MS = 320;
 
 /* ---------- tiny helpers ---------- */
@@ -33,10 +37,10 @@ const fmt2 = (n) => n.toFixed(2);
 const initials = (name) =>
   name.trim().split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase() || '?';
 
-/** One shared target for a round: 4.00–10.00 inclusive, 2 decimals.
+/** One shared target for a round: 3.00–8.00 inclusive, 2 decimals.
  *  Host-only. Never called on a non-host peer. */
 function makeTarget() {
-  const steps = Math.round((TARGET_MAX - TARGET_MIN) * 100); // 600 steps of 0.01
+  const steps = Math.round((TARGET_MAX - TARGET_MIN) * 100); // 500 steps of 0.01
   return round2(TARGET_MIN + (Math.floor(Math.random() * (steps + 1)) / 100));
 }
 
@@ -235,11 +239,11 @@ function startTutorial() {
  *  timer stops → difference shown. Then it repeats. */
 function loopTutorial() {
   const finger = $('demo-finger'), ripple = $('demo-ripple');
-  const timerEl = $('demo-timer'), diffEl = $('demo-diff'), labelEl = $('demo-label');
+  const timerEl = $('demo-timer'), diffEl = $('demo-diff'), targetEl = $('demo-target');
 
-  const DEMO_TARGET = 5.00;
-  const DEMO_STOP = 5.12;   // where our imaginary player lands
-  const SPEED = 4.2;        // compress ~5s of play into ~1.2s of animation
+  const DEMO_TARGET = TUTORIAL_TARGET;
+  const DEMO_STOP = TUTORIAL_TARGET + 0.12;   // where our imaginary player lands
+  const SPEED = 3.4;        // compress the attempt into ~1.2s of animation
 
   const place = (x, y) => {
     const box = $('demo').getBoundingClientRect();
@@ -261,7 +265,7 @@ function loopTutorial() {
   timerEl.textContent = '0.00';
   timerEl.style.color = 'var(--text)';
   diffEl.textContent = '';
-  labelEl.textContent = 'Target Time';
+  targetEl.textContent = fmt2(DEMO_TARGET) + 's';   // keep markup and constant in step
   finger.style.opacity = '0';
 
   const W = $('demo').clientWidth || 300;
@@ -284,7 +288,9 @@ function loopTutorial() {
   after(1000 + (DEMO_STOP / SPEED) * 1000, () => {      // tap 2 — stop
     tap();
     timerEl.style.color = 'var(--brick)';
-    labelEl.textContent = 'Your Time';
+    // The label belongs to the target above it, which never changes. The
+    // running number below is the player's time — recolouring it is what
+    // marks it as their result.
   });
 
   after(1000 + (DEMO_STOP / SPEED) * 1000 + 380, () => {
@@ -448,7 +454,7 @@ function showOwnResult(elapsedMs) {
    ============================================================ */
 
 function startPractice() {
-  openRound({ round: 0, target: PRACTICE_TARGET, practice: true });
+  openRound({ round: 0, target: TUTORIAL_TARGET, practice: true });
 
   Tap.onStop = (elapsed) => {
     showOwnResult(elapsed);
@@ -570,11 +576,12 @@ net.on('final', (m) => {
     const isWinner = s.id === m.winnerId;
     // Losers here are brown/taupe, never red — the game is over, nobody's blamed.
     const cls = isWinner ? 'win' : (i === 1 ? 'neutral' : 'neutral-muted');
+    const tb = (isWinner && m.viaTiebreak) ? ` <span class="tb-tag">— Tie Break</span>` : '';
     return `
       <div class="rank-row">
         <span class="rank-i">${i + 1}.</span>
         <span class="rank-name ${cls}">${p ? p.name : 'Player'}</span>
-        <span class="rank-stats"><span class="t">${s.wins} ${s.wins === 1 ? 'Win' : 'Wins'}</span></span>
+        <span class="rank-stats"><span class="t">${s.wins} ${s.wins === 1 ? 'Win' : 'Wins'}</span>${tb}</span>
       </div>`;
   }).join('');
 
@@ -690,7 +697,7 @@ function hostFinishRound() {
 /** Called once every player has pressed Next Round. Decides what comes next. */
 function hostAdvance() {
   if (G.tiebreak) {
-    if (H.lastWinners.length === 1) return hostFinal(H.lastWinners[0]);
+    if (H.lastWinners.length === 1) return hostFinal(H.lastWinners[0], true);
     return hostStartRound(G.round + 1, H.lastWinners, true);  // still tied — go again
   }
 
@@ -701,16 +708,19 @@ function hostAdvance() {
   // Five rounds done — most wins takes it, unless it's tied at the top.
   const top = Math.max(...net.players.map(p => H.wins[p.id] || 0));
   const leaders = net.players.filter(p => (H.wins[p.id] || 0) === top).map(p => p.id);
-  if (leaders.length === 1) return hostFinal(leaders[0]);
+  if (leaders.length === 1) return hostFinal(leaders[0], false);
   hostStartRound(G.round + 1, leaders, true);
 }
 
-function hostFinal(winnerId) {
+/** viaTiebreak: the winner didn't out-win the field, they out-timed it in
+ *  sudden death. The final board says so — otherwise a 2-2-2 board looks
+ *  like the winner was picked at random. */
+function hostFinal(winnerId, viaTiebreak) {
   const standings = net.players
     .map(p => ({ id: p.id, wins: H.wins[p.id] || 0 }))
     .sort((a, b) => (b.id === winnerId) - (a.id === winnerId) || b.wins - a.wins);
   hostExpect([], 'done');
-  net.send('final', { winnerId, standings, wins: H.wins });
+  net.send('final', { winnerId, standings, wins: H.wins, viaTiebreak: !!viaTiebreak });
 }
 
 /* ---------- boot ---------- */

@@ -97,8 +97,9 @@ gets you protection against a tampered client.
 
 ## Rules encoded
 
-- Targets: 4.00–10.00s inclusive, 2 decimals, new one every official and
-  tie-breaker round. Practice is fixed at 5.00s and counts toward nothing.
+- Targets: 3.00–8.00s inclusive, 2 decimals, new one every official and
+  tie-breaker round. The animated example and the practice round both use a
+  fixed 4.00s (`TUTORIAL_TARGET`); practice counts toward nothing.
 - Practice is a single attempt: once a player stops the timer, *Start Game* is
   the only way on. (Deliberate — the original spec allowed retries.)
 - Difference is `|stopped − target|`, so stopping early and late are treated
@@ -109,7 +110,9 @@ gets you protection against a tampered client.
   the round.
 - After 5 rounds, most wins takes it. Any tie at the top sends **only** the tied
   players to a tie-breaker, repeating until someone wins outright. A tie-breaker
-  decides the winner without adding to the win tally.
+  decides the winner without adding to the win tally — so the final board tags
+  that winner "— Tie Break", otherwise a 2-2-2 board reads as if the winner was
+  picked arbitrarily.
 - Results are hidden until every player in the round has stopped.
 
 ## The tap engine
@@ -125,7 +128,7 @@ guarantees, all enforced by the state machine in `game.js`:
 How: a tap can only stop the timer from the `armed` state, and `armed` is only
 reachable by fully lifting the finger (`pointerup`) and then waiting out
 `ARM_DELAY_MS` (320ms). That delay is far below any real attempt — the shortest
-legal target is 4 seconds — but long enough to absorb a fumble.
+legal target is 3 seconds — but long enough to absorb a fumble.
 
 Times are measured with `performance.now()` and displayed to 2 decimals.
 
