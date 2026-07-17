@@ -4,7 +4,7 @@
    Flow:
      Menu → Setup → Lobby → Instructions → Practice → Waiting
           → 5 official rounds (round → results → …)
-          → tie-breaker rounds while needed
+          → tiebreak rounds while needed
           → Final results
 
    The host is authoritative: it generates every target, tallies wins,
@@ -311,7 +311,7 @@ $('btn-to-practice').onclick = () => {
 };
 
 /* ============================================================
-   TAP ENGINE — shared by practice, official, tie-breaker
+   TAP ENGINE — shared by practice, official, tiebreak
    ============================================================ */
 
 const Tap = {
@@ -490,16 +490,16 @@ function openWaiting(title, sub, onlyIds = null) {
 }
 
 /* ============================================================
-   OFFICIAL + TIE-BREAKER ROUNDS  (all peers)
+   OFFICIAL + TIEBREAK ROUNDS  (all peers)
    ============================================================ */
 
 net.on('round-start', (m) => {
   G.wins = m.wins;
   G.participants = m.participants;
 
-  // Sitting out a tie-breaker: watch, don't play.
+  // Sitting out a tiebreak: watch, don't play.
   if (!m.participants.includes(net.me.id)) {
-    openWaiting('Tie-Breaker in Progress…', 'The tied players are settling it.', m.participants);
+    openWaiting('Tiebreak in Progress…', 'The tied players are settling it.', m.participants);
     return;
   }
 
@@ -517,7 +517,7 @@ net.on('round-start', (m) => {
 });
 
 net.on('round-results', (m) => {
-  if (!m.rows.some(r => r.id === net.me.id)) return;  // not our tie-breaker
+  if (!m.rows.some(r => r.id === net.me.id)) return;  // not our tiebreak
 
   G.wins = m.wins;
   const iWon = m.winners.includes(net.me.id);
@@ -525,7 +525,7 @@ net.on('round-results', (m) => {
   $('verdict').textContent = iWon ? 'Winner!' : 'Almost Had It!';
   $('verdict').className = 'verdict mb-4 ' + (iWon ? 'win' : 'lose');
   $('results-head').textContent = m.tiebreak
-    ? 'Tie-Breaker Results'
+    ? 'Tiebreak Results'
     : `Round ${m.round} Results`;
 
   $('results-list').innerHTML = m.rows.map((r, i) => {
@@ -576,7 +576,7 @@ net.on('final', (m) => {
     const isWinner = s.id === m.winnerId;
     // Losers here are brown/taupe, never red — the game is over, nobody's blamed.
     const cls = isWinner ? 'win' : (i === 1 ? 'neutral' : 'neutral-muted');
-    const tb = (isWinner && m.viaTiebreak) ? ` <span class="tb-tag">— Tie Break</span>` : '';
+    const tb = (isWinner && m.viaTiebreak) ? ` <span class="tb-tag">— Tiebreak</span>` : '';
     return `
       <div class="rank-row">
         <span class="rank-i">${i + 1}.</span>

@@ -49,7 +49,7 @@ Three things about the free plan that will bite otherwise:
 ## Flow
 
 Menu → Setup → Lobby → Instructions (animated) → Practice → Waiting →
-5 official rounds (round → results) → tie-breakers as needed → Final.
+5 official rounds (round → results) → tiebreaks as needed → Final.
 
 No 3-2-1 countdowns anywhere. Every round opens directly and each player taps
 to start their own timer whenever they're ready.
@@ -66,11 +66,10 @@ net.send(type, payload) // broadcast to the room
 net.on(type, handler)   // subscribe
 ```
 
-The current implementation uses `BroadcastChannel`, which carries messages
-**between tabs of one browser on one machine**. That is enough to play and test
-the whole game loop with no server, but it is not real cross-device multiplayer.
-To ship: replace the body of `Transport` with your socket calls, keep those four
-signatures, and `game.js` needs no changes.
+The current implementation is SSE down (`/events`) + POST up (`/api/msg`),
+served by `server.js`. Real players on real devices. To move it onto another
+backend, replace the body of `Transport`, keep those four signatures, and
+`game.js` needs no changes.
 
 Two properties any replacement must preserve:
 
@@ -98,7 +97,7 @@ gets you protection against a tampered client.
 ## Rules encoded
 
 - Targets: 3.00–8.00s inclusive, 2 decimals, new one every official and
-  tie-breaker round. The animated example and the practice round both use a
+  tiebreak round. The animated example and the practice round both use a
   fixed 4.00s (`TUTORIAL_TARGET`); practice counts toward nothing.
 - Practice is a single attempt: once a player stops the timer, *Start Game* is
   the only way on. (Deliberate — the original spec allowed retries.)
@@ -109,9 +108,9 @@ gets you protection against a tampered client.
   hundredth decides a round. Every player tied at the smallest difference wins
   the round.
 - After 5 rounds, most wins takes it. Any tie at the top sends **only** the tied
-  players to a tie-breaker, repeating until someone wins outright. A tie-breaker
+  players to a tiebreak, repeating until someone wins outright. A tiebreak
   decides the winner without adding to the win tally — so the final board tags
-  that winner "— Tie Break", otherwise a 2-2-2 board reads as if the winner was
+  that winner "— Tiebreak", otherwise a 2-2-2 board reads as if the winner was
   picked arbitrarily.
 - Results are hidden until every player in the round has stopped.
 
@@ -135,11 +134,12 @@ Times are measured with `performance.now()` and displayed to 2 decimals.
 ## Verified
 
 Driven end-to-end in-browser across three tabs: join-by-code (including a wrong
-code and a rejected 4th player), practice, a full 5-round game, a within-round
-tie awarding both players a win, a three-way tie-breaker, a partial tie-breaker
-with a player sitting out, the final screen, and Play Again. Target generator
-checked over 200k draws: 0 out of range, 601 distinct values, both endpoints
-reachable.
+code and a rejected 4th player), the 3-player start gate, practice, a full
+5-round game, a within-round tie awarding both players a win, a three-way
+tiebreak, a partial tiebreak with a player sitting out, the tiebreak tag on the
+final board, Play Again, and a mid-game dropout reconnecting to held messages.
+Target generator checked over 300k draws: 0 out of range, 501 distinct values,
+both endpoints (3.00 and 8.00) reachable.
 
 Note when testing with tabs: Chrome throttles timers in backgrounded tabs, so a
 background player's stop times will read long. Keep the tab you're timing in the
